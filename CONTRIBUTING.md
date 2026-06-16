@@ -56,7 +56,7 @@ When reporting a bug, include:
 - Relevant logs or screenshots if available.
 
 ## General
-  Make sur that the app starts and works before submitting
+  Make sure that the app starts and works before submitting
 
 
 ## Questions?
