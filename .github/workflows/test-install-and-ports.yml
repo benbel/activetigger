@@ -1,0 +1,35 @@
+name: test-install-and-port
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  install-and-port-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install API dependencies
+        working-directory: api
+        run: uv sync
+
+      - name: Install NPM dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Test 
+        run: |
+          (cd api && uv run python -m activetigger > /tmp/api.log 2>&1) &
+          (cd frontend && npm run dev > /tmp/frontend.log 2>&1) &
+          sleep 60
+          curl -sf http://localhost:5000/ >/dev/null || { echo "API error"; cat /tmp/api.log; exit 1; }
+          curl -sf http://localhost:5173/ >/dev/null || { echo "Front end error"; cat /tmp/frontend.log; exit 1; }
+          echo "OK"
